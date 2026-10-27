@@ -2,3 +2,12 @@
 
 # optional experiment tracking
 mlflow==2.14.3
+
+# mlflow 2.x imports pkg_resources at import time; Python >=3.12 venvs no longer
+# ship setuptools, so it must be requested explicitly (pkg_resources is removed
+# from setuptools >=81, hence the upper bound).
+setuptools>=70,<81
+
+# mlflow 2.14.3 imports sqlalchemy.pool.FallbackAsyncAdaptedQueuePool, which was
+# removed in SQLAlchemy 2.1 -> the sqlite/registry backend fails to import on 2.1+.
+sqlalchemy>=1.4,<2.1

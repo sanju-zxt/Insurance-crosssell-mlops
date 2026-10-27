@@ -6,7 +6,7 @@ else
 	PIP := .venv/bin/pip
 endif
 
-.PHONY: setup train serve test mlflow docker clean
+.PHONY: setup train train-mlflow serve test mlflow docker clean
 
 setup:
 	python -m venv .venv
@@ -23,7 +23,7 @@ serve:
 	$(PY) -m uvicorn xsell.api.main:app --app-dir src --reload
 
 mlflow:
-	$(PY) -m mlflow ui --port 5000
+	$(PY) -m mlflow ui --port 5000 --backend-store-uri sqlite:///mlflow.db
 
 test:
 	$(PY) -m pytest

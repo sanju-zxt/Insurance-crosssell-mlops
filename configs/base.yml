@@ -48,4 +48,8 @@ tracking:
   enabled: false
   experiment: xsell-propensity
   registered_model: xsell_propensity
-  tracking_uri: ""
+  # sqlite backend: the MLflow model registry only works on a database store
+  # (a plain `file:` store cannot hold registered models). Relative paths are
+  # resolved against the repository root by `xsell.train._tracking_uri`.
+  # Override with the MLFLOW_TRACKING_URI env var (e.g. a tracking server in Docker).
+  tracking_uri: sqlite:///mlflow.db

@@ -44,8 +44,29 @@ python pipelines/train.py
 python pipelines/train.py --mlflow
 ```
 
-The artifact lands in `models/model.joblib` together with `models/metadata.json`
-(metrics, feature order, decision threshold, library versions).
+The artifact lands in `models/model.joblib` together with
+`models/model.metadata.json` (metrics, feature order, decision threshold, library
+versions). The sidecar is named after the artifact, so several models can live in
+`models/` at once — e.g. `model-logistic.joblib` + `model-logistic.metadata.json`.
+
+### Track experiments
+
+`--mlflow` logs params/metrics/model and registers a model version, using the store
+configured in `configs/base.yml` (`tracking_uri: sqlite:///mlflow.db`, resolved
+against the repository root). A database store is required: the MLflow **model
+registry does not work on a plain `file:` store**.
+
+```bash
+pip install -r requirements-tracking.txt                       # mlflow 2.14.3 (+ setuptools<81, sqlalchemy<2.1)
+python pipelines/train.py --mlflow                             # run + registered version
+python -m mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5000
+```
+
+Then open http://127.0.0.1:5000. Each run creates a new version of the registered
+model `xsell_propensity`. Point `MLFLOW_TRACKING_URI` at a tracking server (the
+`mlflow` service in `docker-compose.yml`, which also binds port 5000 — run it *or*
+the local UI, not both) to keep results off the local disk; `mlflow.db` and
+`mlruns/` are gitignored.
 
 ### Serve
 
@@ -69,7 +90,11 @@ curl -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" -
 
 ### Docker
 
+The image ships the trained artifact, so train first (or mount your own
+`models/` over it):
+
 ```bash
+python pipelines/train.py          # produces models/model.joblib
 docker build -t xsell-api .
 docker run -p 8000:8000 xsell-api
 ```
@@ -79,6 +104,10 @@ Full stack with an MLflow tracking server:
 ```bash
 docker compose up --build
 ```
+
+The container healthcheck asserts `model_loaded` in `/health`, not just HTTP 200 —
+an image without an artifact reports `degraded` and stays `unhealthy` instead of
+pretending to be fine while `/predict` returns 503.
 
 ### Tests
 

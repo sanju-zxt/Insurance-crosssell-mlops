@@ -1,20 +1,30 @@
-__pycache__/
-*.py[cod]
-*.egg-info/
+# Build context for the serving image.
+# NOTE: models/ is deliberately NOT ignored - the image must ship the
+# trained artifact (models/model.joblib) and its metadata sidecar, otherwise
+# the API starts in "degraded" state and /predict returns 503.
+
+# --- VCS and local environments ----------------------------------------
+.git/
+.github/
 .venv/
 venv/
+
+# --- Python build/test junk --------------------------------------------
+**/__pycache__/
+**/*.py[cod]
+*.egg-info/
 .pytest_cache/
 .coverage
 htmlcov/
-.git/
-.gitignore
+
+# --- Training-only assets (never read while serving) --------------------
+data/
 mlruns/
 mlflow.db
-models/*.joblib
-models/*.metadata.json
-data/
-docs/
+
+# --- Tests, docs and local tooling -------------------------------------
 tests/
+docs/
 *.md
 !README.md
 Makefile

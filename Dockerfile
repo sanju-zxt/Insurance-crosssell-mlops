@@ -20,7 +20,10 @@ USER appuser
 
 EXPOSE 8000
 
+# /health answers 200 even when the model is missing (status="degraded"), so the
+# probe must assert model_loaded, otherwise an image without an artifact would
+# still be reported "healthy" while /predict returns 503.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-    CMD python -c "import urllib.request,sys; sys.exit(0) if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4).status == 200 else sys.exit(1)"
+    CMD ["python", "-c", "import json,sys,urllib.request; body=urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=4).read().decode(); sys.exit(0 if json.loads(body).get('model_loaded') is True else 1)"]
 
 CMD ["uvicorn", "xsell.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--app-dir", "/app/src"]

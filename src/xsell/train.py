@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+import os
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -14,6 +16,9 @@ from xsell.features import build_pipeline, clean_frame, positive_scores
 from xsell.registry import build_bundle, save_bundle
 
 logger = logging.getLogger(__name__)
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+_LOCAL_SCHEMES = {"sqlite", "file"}
 
 
 def _prepare(settings: Settings):
@@ -74,6 +79,31 @@ def train_and_save(settings: Settings, *, tune_threshold: bool = True) -> Evalua
     return evaluation
 
 
+def _tracking_uri(settings: Settings) -> str | None:
+    """Absolute tracking URI for local backends, or ``None`` for MLflow's default.
+
+    Relative ``sqlite:``/``file:`` URIs are resolved against the repository root
+    so the store always lands in one place no matter which directory the caller
+    ran from. ``MLFLOW_TRACKING_URI`` always wins, which is how a shared tracking
+    server (Docker, remote) is injected without editing the config.
+    """
+    if os.environ.get("MLFLOW_TRACKING_URI"):
+        return None
+
+    uri = settings.tracking.tracking_uri.strip()
+    if not uri:
+        return None
+
+    scheme, sep, path = uri.partition(":///")
+    if not sep or scheme not in _LOCAL_SCHEMES or not path or "?" in path:
+        return uri
+
+    candidate = Path(path)
+    if candidate.is_absolute():
+        return uri
+    return f"{scheme}:///{(REPO_ROOT / candidate).resolve().as_posix()}"
+
+
 def _log_to_mlflow(settings: Settings, pipeline, evaluation: Evaluation, version: str) -> None:
     try:
         import mlflow
@@ -82,9 +112,16 @@ def _log_to_mlflow(settings: Settings, pipeline, evaluation: Evaluation, version
         logger.warning("mlflow is not installed; skipping tracking")
         return
 
-    if settings.tracking.tracking_uri:
-        mlflow.set_tracking_uri(settings.tracking.tracking_uri)
+    tracking_uri = _tracking_uri(settings)
+    if tracking_uri:
+        mlflow.set_tracking_uri(tracking_uri)
+    logger.info("mlflow tracking uri: %s", mlflow.get_tracking_uri())
+
     mlflow.set_experiment(settings.tracking.experiment)
+    # Alembic's fileConfig (run when the sqlite store is bootstrapped) disables
+    # loggers that already exist, which would silently swallow the tracking
+    # lines below. Re-enable ours.
+    logger.disabled = False
 
     with mlflow.start_run() as run:
         mlflow.log_params({"algorithm": settings.model.algorithm, **settings.model.params})
@@ -98,7 +135,13 @@ def _log_to_mlflow(settings: Settings, pipeline, evaluation: Evaluation, version
         )
         mlflow.sklearn.log_model(pipeline, artifact_path="model")
         try:
-            mlflow.register_model(f"runs:/{run.info.run_id}/model", settings.tracking.registered_model)
+            registered = mlflow.register_model(
+                f"runs:/{run.info.run_id}/model", settings.tracking.registered_model
+            )
         except Exception as exc:  # pragma: no cover - registry unavailable
             logger.warning("model registration skipped: %s", exc)
+        else:
+            logger.info("registered model %s v%s", registered.name, registered.version)
+            mlflow.set_tag("registered_model_version", str(registered.version))
         mlflow.set_tag("artifact_version", version)
+        logger.info("mlflow run %s logged", run.info.run_id)
