@@ -36,6 +36,39 @@ source .venv/bin/activate     # Linux / macOS
 pip install -r requirements.txt
 ```
 
+That is the whole setup. The trained artifact is committed to the repository, so
+the next step after `pip install` is serving (§ Serve) — no training run needed.
+
+### Trained artifact (committed)
+
+`models/model.joblib` and `models/model.metadata.json` **are versioned in git**
+(~420 KB compressed). A fresh clone therefore serves predictions immediately:
+`git clone` → `pip install -r requirements.txt` → `uvicorn …` and `/health`
+reports `model_loaded: true` while `/predict` answers with real probabilities.
+
+Committed artifact:
+
+| field | value |
+| --- | --- |
+| file | `models/model.joblib` (432 462 bytes, joblib `compress=3`) |
+| sidecar | `models/model.metadata.json` (features, threshold, metrics, library versions) |
+| version | `insurance-crosssell-mlops-20261027163636` |
+| roc_auc | `0.7978444133735707` |
+| f1 / threshold | `0.38561074302992576` / `0.59` |
+| trained with | scikit-learn 1.5.1 on Python 3.12.10 |
+
+It is **reproducible, not hand-made**: `python pipelines/train.py` is seeded and
+deterministic, so re-running it on the committed `data/train.csv` prints the same
+`roc_auc=0.7978 f1=0.3856 threshold=0.590` and rewrites the same artefact (only the
+`version`/`trained_at` timestamp inside the sidecar changes). Retraining without
+committing the new files leaves the repo serving the old model, so **commit the
+regenerated `models/model.joblib` + `models/model.metadata.json` whenever a change
+to the data, features or `configs/base.yml` moves the metrics.**
+
+Everything training-only stays out of git: `data/` is already in the repo from the
+initial commit so a clone can retrain, while `mlruns/`, `mlflow.db` and the local
+virtualenv are ignored, and `.dockerignore` keeps `data/` out of the image.
+
 ### Train
 
 ```bash
@@ -90,14 +123,17 @@ curl -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" -
 
 ### Docker
 
-The image ships the trained artifact, so train first (or mount your own
-`models/` over it):
+The image ships the committed artifact, so no training step is required (`docker
+build` copies `models/` straight from the checkout; mount your own `models/` over
+it to run a different model):
 
 ```bash
-python pipelines/train.py          # produces models/model.joblib
-docker build -t xsell-api .
+docker build -t xsell-api .        # models/model.joblib is already in the repo
 docker run -p 8000:8000 xsell-api
 ```
+
+To rebuild the artifact first — e.g. after changing `configs/base.yml` — run
+`python pipelines/train.py` before `docker build`.
 
 Full stack with an MLflow tracking server:
 

@@ -1,0 +1,25 @@
+{
+  "version": "insurance-crosssell-mlops-20261027163636",
+  "features": [
+    "Age",
+    "RegionID",
+    "AnnualPremium",
+    "Gender",
+    "PastAccident",
+    "HasDrivingLicense",
+    "Switch"
+  ],
+  "threshold": 0.59,
+  "metrics": {
+    "accuracy": 0.72366,
+    "roc_auc": 0.7978444133735707,
+    "average_precision": 0.27768006869962003,
+    "precision": 0.2642049782164945,
+    "recall": 0.7134512546277252,
+    "f1": 0.38561074302992576,
+    "threshold": 0.59
+  },
+  "trained_at": "2026-10-27T16:36:36+00:00",
+  "sklearn_version": "1.5.1",
+  "python_version": "3.12.10"
+}

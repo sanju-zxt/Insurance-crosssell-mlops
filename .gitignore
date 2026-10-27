@@ -22,15 +22,18 @@ htmlcov/
 .mypy_cache/
 .ruff_cache/
 
-# experiment tracking / artifacts
+# experiment tracking
 mlruns/
 mlflow.db
-models/*.joblib
-models/*.pkl
-models/*.metadata.json
+
+# model artifacts ARE tracked (models/model.joblib + models/model.metadata.json,
+# ~420 KB) so a fresh clone can serve predictions with no training step. Only
+# the MLflow-flavoured model directories stay out of the repo.
 models/**/MLmodel
 models/**/conda.yaml
 models/**/python_env.yaml
+models/mlflow-*/
+*.joblib.tmp
 
 # notebooks
 .ipynb_checkpoints/
