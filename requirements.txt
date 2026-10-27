@@ -1,0 +1,18 @@
+# Runtime dependencies (pinned for reproducibility)
+
+# core data / ML
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.5.1
+imbalanced-learn==0.12.3
+joblib==1.4.2
+
+# serving
+fastapi==0.111.1
+uvicorn[standard]==0.30.1
+pydantic==2.8.2
+
+# config
+PyYAML==6.0.1
+
+# experiment tracking (optional: pip install -r requirements-tracking.txt)

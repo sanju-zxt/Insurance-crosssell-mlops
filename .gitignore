@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# environments
+.venv/
+venv/
+env/
+ENV/
+
+# testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# experiment tracking / artifacts
+mlruns/
+mlflow.db
+models/*.joblib
+models/*.pkl
+models/metadata.json
+models/**/MLmodel
+models/**/conda.yaml
+models/**/python_env.yaml
+
+# notebooks
+.ipynb_checkpoints/
+
+# editors / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# local overrides
+configs/local*.yml
+.env

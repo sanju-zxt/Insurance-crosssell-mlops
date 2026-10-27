@@ -1,0 +1,51 @@
+project: insurance-crosssell-mlops
+seed: 42
+
+data:
+  train_path: data/train.csv
+  test_path: data/test.csv
+  encoding: latin-1
+  target: Result
+  drop_columns:
+    - id
+    - SalesChannelID
+    - VehicleAge
+    - DaysSinceCreated
+  premium_column: AnnualPremium
+  outlier:
+    enabled: true
+    iqr_factor: 1.5
+    train_only: true
+
+preprocessing:
+  impute_strategy: most_frequent
+  standard_scale:
+    - Age
+    - RegionID
+  minmax_scale:
+    - AnnualPremium
+  categorical:
+    - Gender
+    - PastAccident
+  passthrough:
+    - HasDrivingLicense
+    - Switch
+  balance:
+    enabled: true
+    sampling_strategy: 1.0
+
+model:
+  algorithm: gradient_boosting
+  params:
+    n_estimators: 200
+    learning_rate: 0.1
+    max_depth: 3
+  decision_threshold: 0.5
+  artifact_dir: models
+  artifact_name: model.joblib
+
+tracking:
+  enabled: false
+  experiment: xsell-propensity
+  registered_model: xsell_propensity
+  tracking_uri: ""
