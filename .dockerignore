@@ -11,7 +11,7 @@ htmlcov/
 mlruns/
 mlflow.db
 models/*.joblib
-models/metadata.json
+models/*.metadata.json
 data/
 docs/
 tests/

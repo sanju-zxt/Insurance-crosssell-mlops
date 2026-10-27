@@ -29,8 +29,20 @@ def test_metadata_sidecar_is_written(tmp_path, bundle):
     assert metadata["features"] == bundle.features
     assert "sklearn_version" in metadata
 
-    on_disk = json.loads((tmp_path / "metadata.json").read_text(encoding="utf-8"))
+    on_disk = json.loads((tmp_path / "model.metadata.json").read_text(encoding="utf-8"))
     assert on_disk == metadata
+
+
+def test_two_artifacts_in_one_folder_keep_separate_metadata(tmp_path, bundle, settings):
+    first = tmp_path / "model.joblib"
+    second = tmp_path / "model-alt.joblib"
+
+    save_bundle(bundle, first)
+    save_bundle(build_bundle(bundle.pipeline, settings, {"roc_auc": 0.5}, version="alt"), second)
+
+    assert read_metadata(first)["version"] == bundle.version
+    assert read_metadata(second)["version"] == "alt"
+    assert len(list(tmp_path.glob("*.metadata.json"))) == 2
 
 
 def test_read_metadata_without_sidecar_returns_empty(tmp_path):

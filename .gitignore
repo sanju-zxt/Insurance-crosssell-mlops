@@ -27,7 +27,7 @@ mlruns/
 mlflow.db
 models/*.joblib
 models/*.pkl
-models/metadata.json
+models/*.metadata.json
 models/**/MLmodel
 models/**/conda.yaml
 models/**/python_env.yaml

@@ -43,7 +43,8 @@ class ModelBundle:
 
 
 def _metadata_path(artifact: Path) -> Path:
-    return artifact.with_name("metadata.json")
+    """Sidecar named after the artifact, so several models can share a folder."""
+    return artifact.with_name(f"{artifact.stem}.metadata.json")
 
 
 def save_bundle(bundle: ModelBundle, artifact: Path) -> Path:
