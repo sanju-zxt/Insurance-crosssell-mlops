@@ -1,5 +1,7 @@
 # Insurance Cross-Sell Propensity — MLOps Reference Pipeline
 
+[![ci](https://github.com/sanju-zxt/Insurance-crosssell-mlops/actions/workflows/ci.yml/badge.svg)](https://github.com/sanju-zxt/Insurance-crosssell-mlops/actions/workflows/ci.yml)
+
 Predicting which policyholders are likely to buy a second insurance product,
 wrapped in a reproducible train → serve → monitor loop.
 
@@ -7,7 +9,62 @@ wrapped in a reproducible train → serve → monitor loop.
 - **Experiment tracking**: MLflow (optional, opt-in)
 - **Serving**: FastAPI with a typed request/response contract
 - **Packaging**: Docker + docker-compose
-- **Quality**: pytest unit + API tests
+- **Quality**: pytest unit + API tests, GitHub Actions CI (tests + image build)
+
+**[DEMO.md](DEMO.md)** — a 90-second, three-screen walkthrough of the running stack,
+with the exact payloads, expected responses and the answers to the obvious
+follow-up questions.
+
+## Results
+
+100,000 held-out policyholders the model never saw during training:
+
+| metric | value |
+| --- | --- |
+| ROC AUC | **0.7978** |
+| F1 (at threshold 0.59) | 0.3856 |
+| Precision / recall | 0.2642 / 0.7135 |
+| Accuracy | 0.7237 |
+| Average precision | 0.2777 |
+| Training rows | 97,314 |
+
+Accuracy is deliberately *not* the headline. Only ~12% of this base buys a second
+product, so a model that never predicts a sale already scores 0.88 accuracy and is
+worthless. Recall is tuned high on purpose — a wasted phone call costs far less
+than a missed sale — which is why the decision threshold sits at **0.59**, not 0.5.
+
+**The number a retention team would actually act on** — 500 rows from the test set,
+scored through the running API:
+
+| cohort | actual buy-rate |
+| --- | --- |
+| top 10% of scores | **30.0%** |
+| whole sample | 11.8% |
+| lift | **2.5×** |
+
+Call the top decile, skip the rest. Training is seeded and deterministic, so
+`python pipelines/train.py` reproduces the metrics above exactly.
+
+## What it looks like
+
+**1. A prediction, with the request that produced it** — `POST /predict`, Swagger UI
+against the Docker container:
+
+![POST /predict returning will_cross_sell true at probability 0.763604](docs/img/api-predict.png)
+
+**2. The served model describes itself** — `GET /model/info` returns the version,
+threshold, feature order and every metric it was trained with:
+
+![GET /model/info response with version, threshold, features and metrics](docs/img/api-model-info.png)
+
+**3. Every training run is tracked** — the `xsell-propensity` experiment in MLflow:
+
+![MLflow experiment run table](docs/img/mlflow-runs.png)
+
+**4. …and registered as a versioned model** — run detail with the logged metrics and
+the `xsell_propensity` version it produced:
+
+![MLflow run detail with metrics and registered model](docs/img/mlflow-run.png)
 
 ## Architecture
 
@@ -166,6 +223,12 @@ pretending to be fine while `/predict` returns 503.
 pytest
 ```
 
+47 tests: data/schema loading, feature graph and resampling, threshold selection,
+artifact round-trip plus sidecar lineage, config parsing, and the API contract
+(including `422` on malformed payloads and `503` when no model is loaded). CI runs
+the suite and builds the image on every push to `main`:
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
 ## Project layout
 
 ```
@@ -196,6 +259,33 @@ Prediction* tables (columns: `Gender`, `Age`, `HasDrivingLicense`, `RegionID`,
 `Switch`, `VehicleAge`, `PastAccident`, `AnnualPremium`, `SalesChannelID`,
 `DaysSinceCreated`, `Result`). Currency values in `AnnualPremium` are stored in
 single-byte encoding, hence the `latin-1` reader setting.
+
+The dataset and the problem framing are public; the package, config schema, API
+contract, tests, container and CI in this repository are written from scratch.
+
+## What I would do next
+
+Deliberately out of scope for this build, in the order I would pick them up:
+
+1. **Drift monitoring.** Log the feature distribution of every scoring batch and
+   alert on PSI/KS movement in `AnnualPremium`, `RegionID` and `PastAccident`. The
+   metrics above are one snapshot in time; nothing here would notice the population
+   shifting under it.
+2. **Promotion through the registry instead of a file.** The API loads
+   `models/model.joblib` via `XSELL_MODEL_PATH`. Loading
+   `models:/xsell_propensity/Production` would make promotion a registry action, so
+   serving a new model stops being "copy a file and redeploy".
+3. **A retrain gate in CI.** Scheduled retrain that only registers a new version if
+   `roc_auc` does not regress and the top-decile lift holds — the guard that stops
+   silent quality decay.
+4. **Async batch scoring.** `/predict/batch` is synchronous and fine for hundreds of
+   rows; production scoring of a full book wants a queued job plus object storage
+   instead of a local volume.
+5. **Enforced data contract.** Schema validation runs on load, but there is no
+   `pandera`-style contract on request payloads, and no test that the training CSV
+   still satisfies the expected dtypes.
+6. **Calibration check.** Thresholds were chosen on F1; for campaign planning I
+   would add a reliability curve and report expected-value-per-contact.
 
 ## Licence
 
