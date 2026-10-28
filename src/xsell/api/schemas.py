@@ -17,8 +17,11 @@ class CustomerFeatures(BaseModel):
     HasDrivingLicense: int = Field(ge=0, le=1, description="1 if licensed, else 0")
     RegionID: float = Field(ge=0, description="Anonymised region code")
     Switch: int = Field(ge=-1, le=1, description="Prior insurer switch indicator")
+    VehicleAge: Literal["< 1 Year", "1-2 Year", "> 2 Years"] = Field(description="Age of vehicle")
     PastAccident: Literal["Yes", "No", "Unknown"] = Field(description="Any past claim")
     AnnualPremium: float = Field(gt=0, description="Current annual premium")
+    SalesChannelID: float = Field(ge=0, description="Sales channel identifier")
+    DaysSinceCreated: float = Field(ge=0, description="Days since policy created")
 
 
 class Prediction(BaseModel):

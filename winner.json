@@ -1,0 +1,28 @@
+{
+  "name": "5_all_three",
+  "cfg": {
+    "drop": [
+      "id"
+    ],
+    "categorical": [
+      "Gender",
+      "PastAccident",
+      "VehicleAge",
+      "SalesChannelID"
+    ],
+    "standard": [
+      "Age",
+      "RegionID",
+      "DaysSinceCreated"
+    ],
+    "minmax": [
+      "AnnualPremium"
+    ],
+    "passthrough": [
+      "HasDrivingLicense",
+      "Switch"
+    ]
+  },
+  "derived": false,
+  "holdout_auc": 0.8099797353688744
+}

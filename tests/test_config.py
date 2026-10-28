@@ -17,9 +17,12 @@ def test_feature_columns_follow_config_order(settings):
     expected = [
         "Age",
         "RegionID",
+        "DaysSinceCreated",
         "AnnualPremium",
         "Gender",
         "PastAccident",
+        "VehicleAge",
+        "SalesChannelID",
         "HasDrivingLicense",
         "Switch",
     ]

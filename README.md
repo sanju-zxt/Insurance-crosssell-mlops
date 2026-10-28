@@ -289,4 +289,10 @@ Deliberately out of scope for this build, in the order I would pick them up:
 
 ## Licence
 
+## Frontend
+
+See [FRONTEND_SETUP.md](FRONTEND_SETUP.md) for instructions on running the React frontend alongside the FastAPI backend.
+
+## Licence
+
 MIT — see [LICENSE](LICENSE).

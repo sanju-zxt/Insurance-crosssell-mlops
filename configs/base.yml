@@ -8,9 +8,6 @@ data:
   target: Result
   drop_columns:
     - id
-    - SalesChannelID
-    - VehicleAge
-    - DaysSinceCreated
   premium_column: AnnualPremium
   outlier:
     enabled: true
@@ -22,25 +19,30 @@ preprocessing:
   standard_scale:
     - Age
     - RegionID
+    - DaysSinceCreated
   minmax_scale:
     - AnnualPremium
   categorical:
     - Gender
     - PastAccident
+    - VehicleAge
+    - SalesChannelID
   passthrough:
     - HasDrivingLicense
     - Switch
   balance:
-    enabled: true
+    enabled: false
     sampling_strategy: 1.0
 
 model:
   algorithm: gradient_boosting
   params:
     n_estimators: 200
-    learning_rate: 0.1
-    max_depth: 3
-  decision_threshold: 0.5
+    learning_rate: 0.05
+    max_depth: 4
+    min_samples_leaf: 1
+    random_state: 42
+  decision_threshold: 0.19
   artifact_dir: models
   artifact_name: model.joblib
 

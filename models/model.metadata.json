@@ -1,25 +1,28 @@
 {
-  "version": "insurance-crosssell-mlops-20261027163636",
+  "version": "insurance-crosssell-mlops-20261028051854",
   "features": [
     "Age",
     "RegionID",
+    "DaysSinceCreated",
     "AnnualPremium",
     "Gender",
     "PastAccident",
+    "VehicleAge",
+    "SalesChannelID",
     "HasDrivingLicense",
     "Switch"
   ],
-  "threshold": 0.59,
+  "threshold": 0.2,
   "metrics": {
-    "accuracy": 0.72366,
-    "roc_auc": 0.7978444133735707,
-    "average_precision": 0.27768006869962003,
-    "precision": 0.2642049782164945,
-    "recall": 0.7134512546277252,
-    "f1": 0.38561074302992576,
-    "threshold": 0.59
+    "accuracy": 0.74092,
+    "roc_auc": 0.8236045174085773,
+    "average_precision": 0.3253075178117642,
+    "precision": 0.28641093337474766,
+    "recall": 0.7586178527354998,
+    "f1": 0.4158286358511838,
+    "threshold": 0.2
   },
-  "trained_at": "2026-10-27T16:36:36+00:00",
+  "trained_at": "2026-10-28T05:18:54+00:00",
   "sklearn_version": "1.5.1",
   "python_version": "3.12.10"
 }

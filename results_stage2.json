@@ -1,0 +1,52 @@
+{
+  "best_stage1": "5_all_three",
+  "stage1": [
+    {
+      "variant": "1_baseline",
+      "roc_auc": 0.7967947298676684,
+      "average_precision": 0.27338647119692366,
+      "fit_seconds": 144.6,
+      "n_holdout": 19463,
+      "n_input_cols": 7
+    },
+    {
+      "variant": "2_plus_VehicleAge",
+      "roc_auc": 0.8005650433090764,
+      "average_precision": 0.2820209234753306,
+      "fit_seconds": 32.7,
+      "n_holdout": 19463,
+      "n_input_cols": 8
+    },
+    {
+      "variant": "3_plus_SalesChannelID",
+      "roc_auc": 0.8095498303798994,
+      "average_precision": 0.28806877143533,
+      "fit_seconds": 233.7,
+      "n_holdout": 19463,
+      "n_input_cols": 8
+    },
+    {
+      "variant": "4_plus_DaysSinceCreated",
+      "roc_auc": 0.7917794421376696,
+      "average_precision": 0.26811418148423516,
+      "fit_seconds": 51.7,
+      "n_holdout": 19463,
+      "n_input_cols": 8
+    },
+    {
+      "variant": "5_all_three",
+      "roc_auc": 0.8099797353688744,
+      "average_precision": 0.2936248230485012,
+      "fit_seconds": 224.1,
+      "n_holdout": 19463,
+      "n_input_cols": 10
+    }
+  ],
+  "stage2": {
+    "variant": "5_all_three_plus_derived",
+    "roc_auc": 0.8094853408865186,
+    "average_precision": 0.29456963683535653,
+    "fit_seconds": 253.4,
+    "n_holdout": 19463
+  }
+}

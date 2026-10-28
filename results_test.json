@@ -1,0 +1,38 @@
+{
+  "winner": {
+    "name": "5_all_three",
+    "cfg": {
+      "drop": [
+        "id"
+      ],
+      "categorical": [
+        "Gender",
+        "PastAccident",
+        "VehicleAge",
+        "SalesChannelID"
+      ],
+      "standard": [
+        "Age",
+        "RegionID",
+        "DaysSinceCreated"
+      ],
+      "minmax": [
+        "AnnualPremium"
+      ],
+      "passthrough": [
+        "HasDrivingLicense",
+        "Switch"
+      ]
+    },
+    "derived": false,
+    "holdout_auc": 0.8099797353688744
+  },
+  "test": {
+    "variant": "5_all_three",
+    "test_roc_auc": 0.8134985688092263,
+    "test_average_precision": 0.3026907034891537,
+    "test_n": 100000,
+    "fit_seconds": 306.5,
+    "baseline_test_roc_auc": 0.7978444133735707
+  }
+}

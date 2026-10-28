@@ -13,8 +13,11 @@ VALID_CUSTOMER = {
     "HasDrivingLicense": 1,
     "RegionID": 28.0,
     "Switch": 0,
+    "VehicleAge": "< 1 Year",
     "PastAccident": "No",
     "AnnualPremium": 1416.5,
+    "SalesChannelID": 152,
+    "DaysSinceCreated": 200,
 }
 
 
