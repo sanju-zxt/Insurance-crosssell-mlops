@@ -1,4 +1,4 @@
-# Insurance Cross-Sell Propensity — MLOps Reference Pipeline
+# Insurance Cross-Sell Propensity — MLOps Reference Pipeline.
 
 [![ci](https://github.com/sanju-zxt/Insurance-crosssell-mlops/actions/workflows/ci.yml/badge.svg)](https://github.com/sanju-zxt/Insurance-crosssell-mlops/actions/workflows/ci.yml)
 
