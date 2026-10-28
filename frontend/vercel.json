@@ -1,8 +1,32 @@
 {
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://insurance-crosssell-mlops.onrender.com/"
+      "source": "/api/:path*",
+      "destination": "https://insurance-crosssell-mlops.onrender.com/:path*"
+    },
+    {
+      "source": "/health",
+      "destination": "https://insurance-crosssell-mlops.onrender.com/health"
+    },
+    {
+      "source": "/model/:path*",
+      "destination": "https://insurance-crosssell-mlops.onrender.com/model/:path*"
+    },
+    {
+      "source": "/predict",
+      "destination": "https://insurance-crosssell-mlops.onrender.com/predict"
+    },
+    {
+      "source": "/predict/:path*",
+      "destination": "https://insurance-crosssell-mlops.onrender.com/predict/:path*"
+    },
+    {
+      "source": "/docs",
+      "destination": "https://insurance-crosssell-mlops.onrender.com/docs"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "https://insurance-crosssell-mlops.onrender.com/openapi.json"
     }
   ],
   "buildCommand": "npm run build",
