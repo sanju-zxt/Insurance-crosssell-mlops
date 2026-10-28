@@ -1,6 +1,9 @@
-﻿{
+{
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://insurance-crosssell-mlops.onrender.com/" }
+    {
+      "source": "/api/(.*)",
+      "destination": "https://insurance-crosssell-mlops.onrender.com/"
+    }
   ],
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
