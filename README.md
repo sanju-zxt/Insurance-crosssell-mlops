@@ -101,6 +101,21 @@ model `xsell_propensity`. Point `MLFLOW_TRACKING_URI` at a tracking server (the
 the local UI, not both) to keep results off the local disk; `mlflow.db` and
 `mlruns/` are gitignored.
 
+To log against the containerised server instead of the local store:
+
+```bash
+docker compose up -d mlflow
+export MLFLOW_TRACKING_URI=http://127.0.0.1:5000     # PowerShell: $env:MLFLOW_TRACKING_URI="http://127.0.0.1:5000"
+python pipelines/train.py --mlflow
+```
+
+The server runs with `--artifacts-destination /mlflow/artifacts` and
+`--default-artifact-root mlflow-artifacts:/`, so artifacts are uploaded **through**
+the server into the mounted volume. Without that pair of flags each client writes
+to its own disk (MLflow resolves the server's local path against the *client*
+filesystem), which silently scatters artifacts and leaves the run unusable from any
+other machine.
+
 ### Serve
 
 ```bash
